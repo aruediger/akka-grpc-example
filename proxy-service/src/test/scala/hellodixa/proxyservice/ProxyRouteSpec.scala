@@ -7,7 +7,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import hellodixa.grpc.PrimeGeneratorServiceImpl
+import hellodixa.grpc._
 
 class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
   val testKit = ActorTestKit()
@@ -31,6 +31,17 @@ class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
     "return errors for ivalid paths" in {
       Get("/x") ~> Route.seal(route) ~> check {
         status shouldEqual StatusCodes.NotFound
+      }
+    }
+    "handle prime service errors" in {
+      val faultyRoute = ProxyRoute(new PrimeGeneratorService {
+        override def primes(
+            in: com.google.protobuf.wrappers.UInt64Value
+        ) = akka.stream.scaladsl.Source.failed(new RuntimeException("BOOM!"))
+      })
+      Get("/prime/20") ~> Route.seal(faultyRoute) ~> check {
+        status shouldEqual StatusCodes.OK // because of streaming response
+        responseAs[String] shouldEqual "BOOM!"
       }
     }
   }

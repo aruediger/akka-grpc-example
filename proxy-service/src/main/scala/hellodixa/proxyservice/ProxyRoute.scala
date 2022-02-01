@@ -21,6 +21,8 @@ object ProxyRoute {
           HttpEntity(
             ContentTypes.`text/plain(UTF-8)`,
             primes(max)
+              // a streaming response can't set the status code so we're at least emitting the error
+              // message before closing the stream
               .recover { case e: RuntimeException => e.getMessage }
               .map(ByteString(_))
           )
