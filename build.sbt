@@ -36,11 +36,9 @@ lazy val primeNumberServer = (project in file("prime-number-server"))
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed"         % akkaVersion,
+      "com.typesafe.akka" %% "akka-http"                % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-stream"              % akkaVersion,
-      "com.typesafe.akka" %% "akka-discovery"           % akkaVersion,
-      "com.typesafe.akka" %% "akka-pki"                 % akkaVersion,
-      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
-      "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion % Test
+      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test
     ),
     Docker / dockerBaseImage := "openjdk:8-slim",
     Docker / packageName     := "hellodixa/prime-number-server",
@@ -55,9 +53,10 @@ lazy val proxyService = (project in file("proxy-service"))
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe"       % "config"                   % "1.4.0",
+      "com.typesafe.akka" %% "akka-actor-typed"         % akkaVersion,
       "com.typesafe.akka" %% "akka-http"                % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-pki"                 % akkaVersion,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion     % Test,
-      "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion     % Test,
       "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test
     ),
     Docker / dockerBaseImage := "openjdk:8-slim",
