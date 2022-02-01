@@ -23,7 +23,7 @@ class PrimeGeneratorServiceImplSpec
 
   implicit val system: ActorSystem[_] = testKit.system
 
-  val service = new PrimeGeneratorServiceImpl(system)
+  val service = new PrimeGeneratorServiceImpl
 
   override def afterAll(): Unit = {
     testKit.shutdownTestKit()

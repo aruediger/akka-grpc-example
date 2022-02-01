@@ -11,7 +11,7 @@ import hellodixa.grpc.PrimeGeneratorServiceImpl
 
 class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
   val testKit = ActorTestKit()
-  val route   = ProxyRoute(new PrimeGeneratorServiceImpl(testKit.system))
+  val route   = ProxyRoute(new PrimeGeneratorServiceImpl)
 
   override def afterAll: Unit = {
     testKit.shutdownTestKit()

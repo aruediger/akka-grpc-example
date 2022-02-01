@@ -27,7 +27,7 @@ class PrimeGeneratorServer(system: ActorSystem[_]) {
     implicit val sys                  = system
     implicit val ec: ExecutionContext = system.executionContext
 
-    val service = PrimeGeneratorServiceHandler(new PrimeGeneratorServiceImpl(system))
+    val service = PrimeGeneratorServiceHandler(new PrimeGeneratorServiceImpl)
     val binding: Future[Http.ServerBinding] = Http(system)
       .newServerAt(interface = "0.0.0.0", port = 8080)
       .bind(service)
