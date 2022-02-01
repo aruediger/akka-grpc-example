@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package hellodixa.grpc;
+
+import "google/protobuf/wrappers.proto";
+
+service PrimeGeneratorService {
+	rpc Primes (google.protobuf.UInt64Value) returns (stream google.protobuf.UInt64Value) {}
+}

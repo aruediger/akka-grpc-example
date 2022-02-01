@@ -12,11 +12,26 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest"       % "3.2.10" % Test
 )
 
+lazy val akkaVersion     = "2.6.18"
+
 lazy val math = (project in file("math"))
+
+lazy val grpc = (project in file("grpc"))
+  .dependsOn(math)
+  .enablePlugins(AkkaGrpcPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-actor-typed"         % akkaVersion,
+      "com.typesafe.akka" %% "akka-stream"              % akkaVersion,
+      "com.typesafe.akka" %% "akka-discovery"           % akkaVersion,
+      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test
+    )
+  )
 
 lazy val root = (project in file("."))
   .aggregate(
-    math
+    math,
+    grpc
   )
 
 addCommandAlias("fmt", ";scalafmtAll;scalafmtSbt")
