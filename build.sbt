@@ -31,6 +31,8 @@ lazy val grpc = (project in file("grpc"))
 
 lazy val primeNumberServer = (project in file("prime-number-server"))
   .dependsOn(grpc)
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(DockerPlugin)
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed"         % akkaVersion,
@@ -39,6 +41,13 @@ lazy val primeNumberServer = (project in file("prime-number-server"))
       "com.typesafe.akka" %% "akka-pki"                 % akkaVersion,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
       "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion % Test
+    ),
+    Docker / dockerBaseImage := "openjdk:8-slim",
+    Docker / packageName     := "hellodixa/prime-number-server",
+    Docker / version         := "latest",
+    Docker / dockerExposedPorts += 8080
+  )
+
     )
   )
 lazy val root = (project in file("."))
