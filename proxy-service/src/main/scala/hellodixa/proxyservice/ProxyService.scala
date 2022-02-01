@@ -4,8 +4,8 @@ import java.security.{ KeyStore, SecureRandom }
 import java.security.cert.{ Certificate, CertificateFactory }
 
 import scala.io.Source
-import scala.concurrent.{ ExecutionContext }
-import scala.util.{ Failure, Success, Try }
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
@@ -27,22 +27,32 @@ object ProxyService extends App {
 class ProxyService(primeGenerator: PrimeGeneratorService)(implicit system: ActorSystem[_]) {
   val log = org.slf4j.LoggerFactory.getLogger(getClass)
 
-  def run(): Unit = {
+  def run(): Future[Seq[Http.ServerBinding]] = {
     implicit val ec: ExecutionContext = system.executionContext
 
     val route = ProxyRoute(primeGenerator)
-    val bound: Try[Http.ServerBinding] => Unit = {
-      case Success(binding) =>
-        val address = binding.localAddress
+    val bindings = for {
+      http <- Http()
+        .newServerAt("0.0.0.0", 8080)
+        .bind(route)
+      https <- Http()
+        .newServerAt("0.0.0.0", 443)
+        .enableHttps(connectionCtx)
+        .bind(route)
+    } yield Seq(http, https)
+    bindings.onComplete {
+      case Success(x) =>
+        val addresses = x
+          .map({ case Http.ServerBinding(addr) => s"${addr.getHostString}:${addr.getPort}" })
+          .mkString(", ")
         log.info(
-          s"ProxyService bound to ${address.getHostString}:${address.getPort}"
+          s"ProxyService bound to ${addresses}."
         )
       case Failure(ex) =>
         log.error(s"Failed to bind ProxyService endpoint, terminating system: $ex")
         system.terminate()
     }
-    Http().newServerAt("0.0.0.0", 8080).bind(route).onComplete(bound)
-    Http().newServerAt("0.0.0.0", 443).enableHttps(connectionCtx).bind(route).onComplete(bound)
+    bindings
   }
 
   private def connectionCtx: HttpsConnectionContext = {
