@@ -49,7 +49,7 @@ lazy val primeNumberServer = (project in file("prime-number-server"))
   )
 
 lazy val proxyService = (project in file("proxy-service"))
-  .dependsOn(primeNumberServer)
+  .dependsOn(grpc)
   .enablePlugins(JavaAppPackaging)
   .enablePlugins(DockerPlugin)
   .settings(
