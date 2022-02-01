@@ -13,6 +13,7 @@ ThisBuild / libraryDependencies ++= Seq(
 )
 
 lazy val akkaVersion     = "2.6.18"
+lazy val akkaHttpVersion = "10.2.7"
 
 lazy val math = (project in file("math"))
 
@@ -28,10 +29,23 @@ lazy val grpc = (project in file("grpc"))
     )
   )
 
+lazy val primeNumberServer = (project in file("prime-number-server"))
+  .dependsOn(grpc)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-actor-typed"         % akkaVersion,
+      "com.typesafe.akka" %% "akka-stream"              % akkaVersion,
+      "com.typesafe.akka" %% "akka-discovery"           % akkaVersion,
+      "com.typesafe.akka" %% "akka-pki"                 % akkaVersion,
+      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
+      "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion % Test
+    )
+  )
 lazy val root = (project in file("."))
   .aggregate(
     math,
-    grpc
+    grpc,
+    primeNumberServer
   )
 
 addCommandAlias("fmt", ";scalafmtAll;scalafmtSbt")
