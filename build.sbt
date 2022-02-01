@@ -12,7 +12,12 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest"       % "3.2.10" % Test
 )
 
+lazy val math = (project in file("math"))
+
 lazy val root = (project in file("."))
+  .aggregate(
+    math
+  )
 
 addCommandAlias("fmt", ";scalafmtAll;scalafmtSbt")
 addCommandAlias("validate", ";clean;scalafmtCheckAll;scalafmtSbtCheck;test")
