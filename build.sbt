@@ -50,6 +50,8 @@ lazy val primeNumberServer = (project in file("prime-number-server"))
 
 lazy val proxyService = (project in file("proxy-service"))
   .dependsOn(primeNumberServer)
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(DockerPlugin)
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe"       % "config"                   % "1.4.0",
@@ -57,7 +59,11 @@ lazy val proxyService = (project in file("proxy-service"))
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion     % Test,
       "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion     % Test,
       "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test
-    )
+    ),
+    Docker / dockerBaseImage := "openjdk:8-slim",
+    Docker / packageName     := "hellodixa/proxy-service",
+    Docker / version         := "latest",
+    Docker / dockerExposedPorts += 8080
   )
 
 lazy val root = (project in file("."))
