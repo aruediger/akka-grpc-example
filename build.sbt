@@ -48,13 +48,24 @@ lazy val primeNumberServer = (project in file("prime-number-server"))
     Docker / dockerExposedPorts += 8080
   )
 
+lazy val proxyService = (project in file("proxy-service"))
+  .dependsOn(primeNumberServer)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.typesafe"       % "config"                   % "1.4.0",
+      "com.typesafe.akka" %% "akka-http"                % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion     % Test,
+      "com.typesafe.akka" %% "akka-stream-testkit"      % akkaVersion     % Test,
+      "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test
     )
   )
+
 lazy val root = (project in file("."))
   .aggregate(
     math,
     grpc,
-    primeNumberServer
+    primeNumberServer,
+    proxyService
   )
 
 addCommandAlias("fmt", ";scalafmtAll;scalafmtSbt")
