@@ -1,21 +1,31 @@
 package hellodixa.proxyservice
 
-import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import hellodixa.grpc._
 
 class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
-  val testKit = ActorTestKit()
-  val route   = ProxyRoute(new PrimeGeneratorServiceImpl)
+  val route = ProxyRoute(new PrimeGeneratorServiceImpl)
 
-  override def afterAll: Unit = {
-    testKit.shutdownTestKit()
-  }
+  def clientConfig(conf: String) =
+    ConfigFactory
+      .parseString(conf)
+      .withFallback(
+        ConfigFactory
+          .defaultApplication()
+          .getConfig("akka.grpc.client.\"hellodixa.PrimeGeneratorService\"")
+      )
+      .withFallback(
+        ConfigFactory
+          .defaultReference()
+          .getConfig("akka.grpc.client.\"*\"")
+      )
+      .resolve()
 
   "The service" should {
     "return prime numbers for GET requests to the prime path" in {
@@ -33,13 +43,37 @@ class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
         status shouldEqual StatusCodes.NotFound
       }
     }
+    "handle unknown prime service host" in {
+      val conf              = clientConfig("host = nowhere")
+      val settings          = akka.grpc.GrpcClientSettings.fromConfig(conf)
+      val unavailableClient = PrimeGeneratorServiceClient(settings)
+      val route             = ProxyRoute(unavailableClient)
+      Get("/prime/0") ~> Route.seal(route) ~> check {
+        status shouldEqual StatusCodes.OK // because of streaming response
+        responseAs[
+          String
+        ] shouldEqual "UNKNOWN: nowhere: nodename nor servname provided, or not known"
+      }
+    }
+    "handle unbound prime service port" in {
+      val conf              = clientConfig("host = localhost,port = 6666")
+      val settings          = akka.grpc.GrpcClientSettings.fromConfig(conf)
+      val unavailableClient = PrimeGeneratorServiceClient(settings)
+      val route             = ProxyRoute(unavailableClient)
+      Get("/prime/0") ~> Route.seal(route) ~> check {
+        status shouldEqual StatusCodes.OK // because of streaming response
+        responseAs[String] shouldEqual "UNAVAILABLE: io exception"
+      }
+
+    }
     "handle prime service errors" in {
-      val faultyRoute = ProxyRoute(new PrimeGeneratorService {
+      val faultyService = new PrimeGeneratorService {
         override def primes(
             in: com.google.protobuf.wrappers.UInt64Value
         ) = akka.stream.scaladsl.Source.failed(new RuntimeException("BOOM!"))
-      })
-      Get("/prime/20") ~> Route.seal(faultyRoute) ~> check {
+      }
+      val route = ProxyRoute(faultyService)
+      Get("/prime/0") ~> Route.seal(route) ~> check {
         status shouldEqual StatusCodes.OK // because of streaming response
         responseAs[String] shouldEqual "BOOM!"
       }
