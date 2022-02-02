@@ -11,7 +11,6 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.grpc.GrpcClientSettings
 import akka.http.scaladsl._
-
 import akka.pki.pem.{ DERPrivateKeyLoader, PEMDecoder }
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 
@@ -25,7 +24,8 @@ object ProxyService extends App {
 }
 
 class ProxyService(primeGenerator: PrimeGeneratorService)(implicit system: ActorSystem[_]) {
-  val log = org.slf4j.LoggerFactory.getLogger(getClass)
+  val log  = org.slf4j.LoggerFactory.getLogger(getClass)
+  val conf = system.settings.config.getConfig("hellodixa.proxy-service")
 
   def run(): Future[Seq[Http.ServerBinding]] = {
     implicit val ec: ExecutionContext = system.executionContext
@@ -33,11 +33,11 @@ class ProxyService(primeGenerator: PrimeGeneratorService)(implicit system: Actor
     val route = ProxyRoute(primeGenerator)
     val bindings = for {
       http <- Http()
-        .newServerAt("0.0.0.0", 8080)
+        .newServerAt(conf.getString("bind-host"), conf.getInt("bind-port"))
         .bind(route)
       https <- Http()
-        .newServerAt("0.0.0.0", 443)
-        .enableHttps(connectionCtx)
+        .newServerAt(conf.getString("bind-host"), conf.getInt("bind-port-tls"))
+        .enableHttps(connectionCtx(conf.getString("cert-file"), conf.getString("key-file")))
         .bind(route)
     } yield Seq(http, https)
     bindings.onComplete {
@@ -55,11 +55,12 @@ class ProxyService(primeGenerator: PrimeGeneratorService)(implicit system: Actor
     bindings
   }
 
-  private def connectionCtx: HttpsConnectionContext = {
-    val privateKey = DERPrivateKeyLoader.load(PEMDecoder.decode(readPrivateKeyPem()))
-    val fact       = CertificateFactory.getInstance("X.509")
+  private def connectionCtx(certFile: String, keyFile: String): HttpsConnectionContext = {
+    val privateKey =
+      DERPrivateKeyLoader.load(PEMDecoder.decode(Source.fromResource(keyFile).mkString))
+    val fact = CertificateFactory.getInstance("X.509")
     val cer = fact.generateCertificate(
-      classOf[ProxyService].getResourceAsStream("/certs/server1.pem")
+      classOf[ProxyService].getResourceAsStream(s"/$certFile")
     )
     val ks = KeyStore.getInstance("PKCS12")
     ks.load(null)
@@ -70,6 +71,4 @@ class ProxyService(primeGenerator: PrimeGeneratorService)(implicit system: Actor
     context.init(keyManagerFactory.getKeyManagers, null, new SecureRandom)
     ConnectionContext.httpsServer(context)
   }
-
-  private def readPrivateKeyPem(): String = Source.fromResource("certs/server1.key").mkString
 }

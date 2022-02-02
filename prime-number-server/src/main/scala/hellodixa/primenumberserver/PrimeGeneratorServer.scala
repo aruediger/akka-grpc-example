@@ -16,6 +16,7 @@ object PrimeGeneratorServer extends App {
   val conf = ConfigFactory
     .parseString("akka.http.server.preview.enable-http2 = on")
     .withFallback(ConfigFactory.defaultApplication())
+    .resolve
   val system = ActorSystem[Nothing](Behaviors.empty, "PrimeGeneratorServer", conf)
   new PrimeGeneratorServer(system).run()
 }
@@ -28,8 +29,9 @@ class PrimeGeneratorServer(system: ActorSystem[_]) {
     implicit val ec: ExecutionContext = system.executionContext
 
     val service = PrimeGeneratorServiceHandler(new PrimeGeneratorServiceImpl)
-    val binding: Future[Http.ServerBinding] = Http(system)
-      .newServerAt(interface = "0.0.0.0", port = 8080)
+    val conf    = system.settings.config.getConfig("hellodixa.prime-number-server")
+    val binding = Http(system)
+      .newServerAt(conf.getString("bind-host"), conf.getInt("bind-port"))
       .bind(service)
       .map(_.addToCoordinatedShutdown(hardTerminationDeadline = 10.seconds))
 

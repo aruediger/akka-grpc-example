@@ -6,7 +6,5 @@ services:
       - "443:443"
     depends_on:
       - prime-number-server
-    environment:
-      - PRIMEGENERATOR_GRPC_HOST=prime-number-server
   prime-number-server:
     image: hellodixa/prime-number-server:latest
