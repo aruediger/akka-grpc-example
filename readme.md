@@ -1,3 +1,5 @@
+![validation](https://github.com/2beaucoup/hello-dixa/actions/workflows/scala.yml/badge.svg)
+
 # Dixa Backend Engineer test
 
 ## TLDR
