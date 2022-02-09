@@ -52,7 +52,7 @@ class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
         status shouldEqual StatusCodes.OK // because of streaming response
         responseAs[
           String
-        ] shouldEqual "UNKNOWN: nowhere: nodename nor servname provided, or not known"
+        ] should startWith("UNKNOWN: ")
       }
     }
     "handle unbound prime service port" in {
