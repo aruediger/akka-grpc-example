@@ -1,8 +1,8 @@
 ![validation](https://github.com/2beaucoup/hello-dixa/actions/workflows/scala.yml/badge.svg)
 
-# Dixa Backend Engineer test
+# Akka gRPC example
 
-## TLDR
+## tl;dr
 
 Run
 
@@ -44,12 +44,12 @@ Serves the gRPC service via Akka HTTP. Includes a test that spawns the server an
 Can be run with
 
 ```sh
-$ sbt "project prime-number-server" "runMain hellodixa.primenumberserver.PrimeGeneratorServer"
+$ sbt "project prime-number-server" "runMain PrimeGeneratorServer"
 ```
 
 To run via docker:
 ```sh
-$ sbt docker:publishLocal && docker run -p 8080:8080 hellodixa/prime-number-server
+$ sbt docker:publishLocal && docker run -p 8080:8080 hellogrpc/prime-number-server
 ```
 
 #### Configration
@@ -68,12 +68,12 @@ Includes tests for the route that uses an in-process prime server implementation
  Can be run with
 
 ```sh
-$ sbt "project proxy-service" "runMain hellodixa.proxyservice.ProxyService"
+$ sbt "project proxy-service" "runMain ProxyService"
 ```
 
 To run via docker:
 ```sh
-$ sbt docker:publishLocal && docker run -p 8080:8080 hellodixa/proxy-server
+$ sbt docker:publishLocal && docker run -p 8080:8080 hellogrpc/proxy-server
 ```
 
 #### Configration

@@ -1,4 +1,4 @@
-package hellodixa.proxyservice
+package hellogrpc.proxyservice
 
 import java.security.{ KeyStore, SecureRandom }
 import java.security.cert.{ Certificate, CertificateFactory }
@@ -14,18 +14,18 @@ import akka.http.scaladsl._
 import akka.pki.pem.{ DERPrivateKeyLoader, PEMDecoder }
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 
-import hellodixa.grpc._
+import hellogrpc.grpc._
 
 object ProxyService extends App {
   implicit val system = ActorSystem(Behaviors.empty, "ProxyService")
-  val settings        = GrpcClientSettings.fromConfig("hellodixa.PrimeGeneratorService")
+  val settings        = GrpcClientSettings.fromConfig("hellogrpc.PrimeGeneratorService")
   val client          = PrimeGeneratorServiceClient(settings)
   new ProxyService(client).run()
 }
 
 class ProxyService(primeGenerator: PrimeGeneratorService)(implicit system: ActorSystem[_]) {
   val log  = org.slf4j.LoggerFactory.getLogger(getClass)
-  val conf = system.settings.config.getConfig("hellodixa.proxy-service")
+  val conf = system.settings.config.getConfig("hellogrpc.proxy-service")
 
   def run(): Future[Seq[Http.ServerBinding]] = {
     implicit val ec: ExecutionContext = system.executionContext

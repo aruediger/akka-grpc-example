@@ -1,10 +1,10 @@
 services:
   proxy-service:
-    image: hellodixa/proxy-service:latest
+    image: hellogrpc/proxy-service:latest
     ports:
       - "80:8080"
       - "443:443"
     depends_on:
       - prime-number-server
   prime-number-server:
-    image: hellodixa/prime-number-server:latest
+    image: hellogrpc/prime-number-server:latest

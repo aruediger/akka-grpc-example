@@ -41,7 +41,7 @@ lazy val primeNumberServer = (project in file("prime-number-server"))
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test
     ),
     Docker / dockerBaseImage := "openjdk:8-slim",
-    Docker / packageName     := "hellodixa/prime-number-server",
+    Docker / packageName     := "hellogrpc/prime-number-server",
     Docker / version         := "latest",
     Docker / dockerExposedPorts += 8080
   )
@@ -60,7 +60,7 @@ lazy val proxyService = (project in file("proxy-service"))
       "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test
     ),
     Docker / dockerBaseImage := "openjdk:8-slim",
-    Docker / packageName     := "hellodixa/proxy-service",
+    Docker / packageName     := "hellogrpc/proxy-service",
     Docker / version         := "latest",
     Docker / dockerExposedPorts += 8080
   )

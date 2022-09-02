@@ -1,4 +1,4 @@
-package hellodixa.math
+package hellogrpc.math
 
 /**
  * Prime number generator borrowed from https://stackoverflow.com/a/9712460

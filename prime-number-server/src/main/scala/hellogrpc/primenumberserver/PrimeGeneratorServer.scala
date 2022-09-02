@@ -1,4 +1,4 @@
-package hellodixa.primenumberserver
+package hellogrpc.primenumberserver
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
@@ -9,7 +9,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl._
 import com.typesafe.config.ConfigFactory
 
-import hellodixa.grpc._
+import hellogrpc.grpc._
 
 object PrimeGeneratorServer extends App {
   // important to enable HTTP/2 in ActorSystem's config
@@ -29,7 +29,7 @@ class PrimeGeneratorServer(system: ActorSystem[_]) {
     implicit val ec: ExecutionContext = system.executionContext
 
     val service = PrimeGeneratorServiceHandler(new PrimeGeneratorServiceImpl)
-    val conf    = system.settings.config.getConfig("hellodixa.prime-number-server")
+    val conf    = system.settings.config.getConfig("hellogrpc.prime-number-server")
     val binding = Http(system)
       .newServerAt(conf.getString("bind-host"), conf.getInt("bind-port"))
       .bind(service)

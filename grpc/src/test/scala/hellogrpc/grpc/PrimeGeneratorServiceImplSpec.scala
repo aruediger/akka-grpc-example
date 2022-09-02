@@ -1,4 +1,4 @@
-package hellodixa.grpc
+package hellogrpc.grpc
 
 import scala.concurrent.duration._
 
@@ -32,6 +32,7 @@ class PrimeGeneratorServiceImplSpec
   "PrimeGeneratorServiceImpl" should {
     val primes =
       (n: Long) => service.primes(UInt64Value(n)).map(_.value).runWith(Sink.seq).futureValue
+
     "reply to zero upper bound" in {
       primes(0) should ===(List.empty)
     }

@@ -1,4 +1,4 @@
-package hellodixa.proxyservice
+package hellogrpc.proxyservice
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
@@ -7,7 +7,7 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import hellodixa.grpc._
+import hellogrpc.grpc._
 
 class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
   val route = ProxyRoute(new PrimeGeneratorServiceImpl)
@@ -18,7 +18,7 @@ class ProxyRouteSpec extends AnyWordSpec with Matchers with ScalatestRouteTest {
       .withFallback(
         ConfigFactory
           .defaultApplication()
-          .getConfig("akka.grpc.client.\"hellodixa.PrimeGeneratorService\"")
+          .getConfig("akka.grpc.client.\"hellogrpc.PrimeGeneratorService\"")
       )
       .withFallback(
         ConfigFactory

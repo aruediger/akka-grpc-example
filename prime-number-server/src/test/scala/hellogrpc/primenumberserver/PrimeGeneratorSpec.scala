@@ -1,4 +1,4 @@
-package hellodixa.primenumberserver
+package hellogrpc.primenumberserver
 
 import scala.concurrent.duration._
 
@@ -14,7 +14,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import hellodixa.grpc._
+import hellogrpc.grpc._
 
 class PrimeGeneratorSpec
     extends AnyWordSpec

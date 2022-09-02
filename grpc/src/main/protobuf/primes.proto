@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package hellodixa.grpc;
+package hellogrpc.grpc;
 
 import "google/protobuf/wrappers.proto";
 

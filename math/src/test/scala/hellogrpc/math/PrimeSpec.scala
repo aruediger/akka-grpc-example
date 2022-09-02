@@ -1,4 +1,4 @@
-package hellodixa.math
+package hellogrpc.math
 
 import org.scalatest.funsuite.AnyFunSuite
 
